@@ -8,13 +8,6 @@ import { accountFilterLabel, TransactionsFilters } from '@/components/transactio
 import { useAccounts, useTransactions } from '@/features/banking/queries'
 import { formatBRL, formatDateTime } from '@/lib/format'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAuthStore } from '@/stores/auth-store'
-
-function firstName(fullName: string | undefined) {
-  const n = fullName?.trim()
-  if (!n) return 'Usuário'
-  return n.split(/\s+/)[0] ?? 'Usuário'
-}
 
 function toYMD(d: Date) {
   const y = d.getFullYear()
@@ -40,8 +33,6 @@ function Amount({ value }: { value: number }) {
 }
 
 export function TransactionsPage() {
-  const user = useAuthStore((s) => s.user)
-  const greeting = useMemo(() => firstName(user?.name), [user?.name])
 
   const { data: accountsData } = useAccounts()
   const accounts = accountsData?.accounts ?? []
@@ -69,7 +60,7 @@ export function TransactionsPage() {
       >
         <div className="min-w-0">
           <h2 className="text-2xl font-semibold tracking-tight">
-            Transações · <span className="text-primary">{greeting}</span>
+            Transações
           </h2>
           <p className="text-sm text-muted-foreground">
             Histórico de movimentações com filtros por conta e por período.
