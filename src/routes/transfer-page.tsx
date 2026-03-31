@@ -10,6 +10,7 @@ import { useAccounts, useTransfer } from '@/features/banking/queries'
 import { CpfCnpjInput, MoneyInput } from '@/components/form/masked-inputs'
 import { formatBRL } from '@/lib/format'
 import { onlyDigits } from '@/lib/input-masks'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -98,7 +99,26 @@ export function TransferPage() {
             className="grid gap-4 md:grid-cols-2"
             onSubmit={form.handleSubmit((values: FormValues) => {
               transfer.mutate(values, {
-                onSuccess: () => navigate('/app/transacoes', { replace: true }),
+                onSuccess: () => {
+                  toast({
+                    variant: 'success',
+                    title: 'Transferência concluída',
+                    description: `${formatBRL(values.amount)} enviado para ${values.toName}. O extrato foi atualizado.`,
+                    duration: 7000,
+                  })
+                  navigate('/app/transacoes', { replace: true })
+                },
+                onError: (error) => {
+                  toast({
+                    variant: 'destructive',
+                    title: 'Transferência não realizada',
+                    description:
+                      error instanceof Error
+                        ? error.message
+                        : 'Não foi possível concluir a operação. Tente novamente.',
+                    duration: 9000,
+                  })
+                },
               })
             })}
           >
@@ -257,16 +277,6 @@ export function TransferPage() {
                 </p>
               )}
             </div>
-
-            {transfer.isError && (
-              <div className="md:col-span-2">
-                <p className="text-sm text-destructive">
-                  {transfer.error instanceof Error
-                    ? transfer.error.message
-                    : 'Falha ao transferir.'}
-                </p>
-              </div>
-            )}
 
             <div
               className="dashboard-row-enter md:col-span-2 flex flex-col-reverse items-stretch justify-end gap-2 pt-2 sm:flex-row sm:items-center"

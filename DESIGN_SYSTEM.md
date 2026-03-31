@@ -64,6 +64,18 @@ Usar escala consistente (múltiplos de 4px sempre que possível) e padrões Tail
 
 Preferir a escala Tailwind existente e manter hierarquia clara (títulos vs textos vs legendas).
 
+## Toasts (feedback de operações críticas)
+
+- **Stack**: `@radix-ui/react-toast` + componentes em `src/components/ui/toast.tsx` e `toaster.tsx`, estado global via `toast()` / `useToast()` em `src/hooks/use-toast.ts`.
+- **Provider**: `<Toaster />` montado em `src/main.tsx` (fora do router, visível em qualquer rota).
+- **Quando usar**: ações financeiras e irreversíveis (ex.: **transferência**), falhas de rede ou regras de negócio que o usuário precisa perceber sem depender só do redirecionamento.
+- **Variantes** (`toastVariants`):
+  - **default** — mensagens neutras.
+  - **success** — confirmação (borda alinhada ao `--primary`).
+  - **destructive** — erro ou bloqueio (token `destructive`).
+- **Duração**: mensagens críticas costumam usar **~7–9s** para dar tempo de leitura; o usuário pode fechar pelo botão (X) ou *swipe*.
+- **Acessibilidade**: Radix expõe região ao leitor de tela; manter **título** curto e **descrição** com o detalhe (valor, favorecido, motivo do erro).
+
 ## Calendário e filtro por intervalo de datas
 
 - **Componentes**: `Popover` + `Calendar` (`react-day-picker`) para seleção em intervalo; conteúdo do popover usa `bg-popover`, `border-border`, `shadow-3` (ver `src/components/ui/popover.tsx`).
