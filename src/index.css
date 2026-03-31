@@ -39,6 +39,10 @@
     --shadow-2: 0px 2px 4px 2px rgba(10, 13, 16, 0.1);
     --shadow-3: 0px 3px 6px 3px rgba(10, 13, 16, 0.11);
     --shadow-4: 0px 4px 8px 4px rgba(10, 13, 16, 0.12);
+
+    /* Auth (login) glass tokens */
+    --auth-glass-bg: 0 0% 100% / 0.72;
+    --auth-glass-border: 0 0% 100% / 0.18;
   }
 
   .dark {
@@ -61,6 +65,10 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 146.3 78% 51.8%;
+
+    /* Auth (login) glass tokens */
+    --auth-glass-bg: 220 20% 10% / 0.6;
+    --auth-glass-border: 220 15% 22% / 0.5;
   }
 
   * {
@@ -73,6 +81,96 @@
 }
 
 @layer utilities {
+  /* Login: background neon animado + glass */
+  .auth-bg {
+    background: hsl(230 55% 6%);
+  }
+
+  .auth-glass {
+    background: hsl(var(--auth-glass-bg));
+    backdrop-filter: blur(40px) saturate(1.3);
+    -webkit-backdrop-filter: blur(40px) saturate(1.3);
+  }
+
+  .auth-neon-layer {
+    inset: -25%;
+    filter: blur(18px) saturate(180%) brightness(140%);
+    box-shadow:
+      0 0 120px hsl(var(--primary) / 0.35),
+      0 0 260px hsl(var(--primary) / 0.18);
+    background:
+      radial-gradient(circle at 30% 50%, hsl(var(--primary) / 0.95) 0% 4%, hsl(var(--primary) / 0.45) 8%, transparent 22%),
+      radial-gradient(circle at 68% 58%, hsl(var(--primary) / 0.60) 0% 3%, hsl(var(--primary) / 0.25) 7%, transparent 20%),
+      linear-gradient(115deg, transparent 38%, hsl(var(--primary) / 0.8) 48%, hsl(var(--primary) / 0.14) 54%, transparent 64%);
+    animation: auth-float 14s ease-in-out infinite;
+  }
+
+  .auth-bloom {
+    width: 500px;
+    height: 500px;
+    top: 10%;
+    left: 55%;
+    background: radial-gradient(circle, hsl(var(--primary) / 0.55) 0%, hsl(var(--primary) / 0.22) 30%, transparent 60%);
+    filter: blur(40px) brightness(130%);
+    box-shadow: 0 0 80px hsl(var(--primary) / 0.25);
+    animation: auth-bloom 20s ease-in-out infinite;
+  }
+
+  .auth-streak {
+    width: 160%;
+    left: -30%;
+    transform-origin: center;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.65), hsl(var(--primary) / 0.25), transparent);
+    filter: blur(2px) brightness(150%);
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.35);
+    animation: auth-streak 14s ease-in-out infinite;
+  }
+
+  .auth-frost {
+    background: hsl(230 55% 6% / 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  @keyframes auth-float {
+    0% {
+      transform: translate3d(-8%, 0%, 0) rotate(0deg);
+    }
+    50% {
+      transform: translate3d(8%, 4%, 0) rotate(6deg);
+    }
+    100% {
+      transform: translate3d(-8%, 0%, 0) rotate(0deg);
+    }
+  }
+
+  @keyframes auth-bloom {
+    0% {
+      transform: translate3d(-20%, -5%, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(15%, 15%, 0) scale(1.15);
+    }
+    100% {
+      transform: translate3d(-20%, -5%, 0) scale(1);
+    }
+  }
+
+  @keyframes auth-streak {
+    0% {
+      transform: translate3d(-8%, 0, 0);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translate3d(8%, 0, 0);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translate3d(-8%, 0, 0);
+      opacity: 0.3;
+    }
+  }
+
   /* Basis-inspired transitions */
   .anim-sm {
     transition-timing-function: var(--anim-ease-out);
