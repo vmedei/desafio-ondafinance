@@ -39,6 +39,9 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh bg-background">
+      <div className="fixed right-4 top-4 z-50 md:right-6 md:top-6">
+        <ThemeToggle />
+      </div>
       <div className="mx-auto grid min-h-dvh max-w-6xl grid-cols-1 md:grid-cols-[260px_1fr]">
         <aside className="hidden border-r md:block">
           <div className="flex h-full flex-col p-4">
@@ -98,9 +101,7 @@ export function AppShell() {
                   Onda Finance
                 </Link>
               </div>
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-              </div>
+              <div className="flex items-center gap-2" />
             </div>
           </header>
 

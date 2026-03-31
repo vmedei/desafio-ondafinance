@@ -1,12 +1,19 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowDownRight, ArrowUpRight, Send } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Eye, EyeOff, Send } from 'lucide-react'
 
 import { useAccounts, useTransactions } from '@/features/banking/queries'
 import { formatBRL, formatDateTime } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useAuthStore } from '@/stores/auth-store'
+
+function firstName(fullName: string | undefined) {
+  const n = fullName?.trim()
+  if (!n) return 'Usuário'
+  return n.split(/\s+/)[0] ?? 'Usuário'
+}
 
 function AmountPill({ value }: { value: number }) {
   const positive = value >= 0
@@ -24,9 +31,13 @@ function AmountPill({ value }: { value: number }) {
 }
 
 export function DashboardPage() {
+  const user = useAuthStore((s) => s.user)
+  const greeting = useMemo(() => firstName(user?.name), [user?.name])
+
   const accountsQ = useAccounts()
   const accounts = accountsQ.data?.accounts ?? []
   const [accountId, setAccountId] = useState<string | undefined>(undefined)
+  const [balanceHidden, setBalanceHidden] = useState(false)
 
   const selectedId = useMemo(() => accountId ?? accounts[0]?.id, [accountId, accounts])
   const txQ = useTransactions(selectedId)
@@ -36,20 +47,49 @@ export function DashboardPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Início</h2>
+      <div
+        className="dashboard-enter flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+        style={{ ['--dashboard-delay' as string]: '0ms' }}
+      >
+        <div className="min-w-0">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Olá, <span className="text-primary">{greeting}</span>
+          </h2>
           <p className="text-sm text-muted-foreground">Visão rápida das suas contas e transações.</p>
         </div>
-        <Button asChild>
-          <Link to="/app/transferir">
-            <Send className="mr-2 size-4" />
-            Transferir
-          </Link>
-        </Button>
+
+        {selectedAccount && (
+          <div className="flex shrink-0 flex-col items-stretch gap-1 sm:items-end">
+            <div className="flex items-center justify-between gap-3 sm:justify-end">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Saldo · {selectedAccount.currency}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="anim-sm size-8 shrink-0"
+                onClick={() => setBalanceHidden((v) => !v)}
+                aria-label={balanceHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
+              >
+                <span className="balance-icon inline-flex">
+                  {balanceHidden ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+                </span>
+              </Button>
+            </div>
+            <p className="balance-swap text-right text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl">
+              {balanceHidden ? '***' : formatBRL(selectedAccount.balance)}
+            </p>
+          </div>
+        )}
       </div>
 
-      <Tabs value={selectedId ?? ''} onValueChange={(v) => setAccountId(v)}>
+      <Tabs
+        value={selectedId ?? ''}
+        onValueChange={(v) => setAccountId(v)}
+        className="dashboard-enter"
+        style={{ ['--dashboard-delay' as string]: '80ms' }}
+      >
         <TabsList className="w-full justify-start">
           {accounts.map((a) => (
             <TabsTrigger key={a.id} value={a.id}>
@@ -60,52 +100,58 @@ export function DashboardPage() {
 
         {accounts.map((a) => (
           <TabsContent key={a.id} value={a.id}>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="md:col-span-1">
-                <CardHeader>
-                  <CardTitle>Saldo</CardTitle>
-                  <CardDescription>{a.currency}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-semibold">{formatBRL(a.balance)}</div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Conta selecionada: <span className="font-medium text-foreground">{a.name}</span>
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Transações recentes</CardTitle>
-                  <CardDescription>Últimas movimentações desta conta.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {txQ.isLoading ? (
-                    <p className="text-sm text-muted-foreground">Carregando...</p>
-                  ) : txs.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Sem transações.</p>
-                  ) : (
-                    <div className="grid gap-2">
-                      {txs.slice(0, 6).map((t) => (
-                        <Link
-                          key={t.id}
-                          to={`/app/transacoes/${t.id}`}
-                          className="flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-accent"
-                        >
-                          <div className="min-w-0">
-                            <div className="truncate text-sm font-medium">{t.title}</div>
-                            <div className="truncate text-xs text-muted-foreground">
-                              {t.description ?? '—'} • {formatDateTime(t.createdAt)}
-                            </div>
+            <Card
+              className="dashboard-enter relative overflow-hidden"
+              style={{ ['--dashboard-delay' as string]: '120ms' }}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <CardTitle>Transações recentes</CardTitle>
+                    <CardDescription>
+                      {a.name} · Últimas movimentações desta conta.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="relative pb-20 sm:pb-24">
+                {txQ.isLoading ? (
+                  <p className="text-sm text-muted-foreground">Carregando...</p>
+                ) : txs.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Sem transações.</p>
+                ) : (
+                  <div className="grid gap-2">
+                    {txs.slice(0, 8).map((t, i) => (
+                      <Link
+                        key={t.id}
+                        to={`/app/transacoes/${t.id}`}
+                        className="dashboard-row-enter anim-sm flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors hover:border-primary/30 hover:bg-accent"
+                        style={{ ['--dashboard-row-delay' as string]: `${40 + i * 45}ms` }}
+                      >
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-medium">{t.title}</div>
+                          <div className="truncate text-xs text-muted-foreground">
+                            {t.description ?? '—'} • {formatDateTime(t.createdAt)}
                           </div>
-                          <AmountPill value={t.amount} />
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                        </div>
+                        <AmountPill value={t.amount} />
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                <Button
+                  asChild
+                  className="anim-sm absolute bottom-4 right-4 z-10 gap-2 rounded-full shadow-4"
+                  size="lg"
+                >
+                  <Link to="/app/transferir">
+                    <Send className="size-4" />
+                    <span>Transferir</span>
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </TabsContent>
         ))}
       </Tabs>

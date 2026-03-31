@@ -7,6 +7,9 @@ type Session = {
 
 const nowIso = () => new Date().toISOString()
 
+const daysAgoIso = (days: number) =>
+  new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+
 export const mockDb = (() => {
   const users: User[] = [
     { id: 'u_1', name: 'Vinicius Medeiros', email: 'vinicius@onda.finance' },
@@ -25,7 +28,7 @@ export const mockDb = (() => {
       title: 'Salário',
       description: 'Crédito em conta',
       amount: 8500,
-      createdAt: nowIso(),
+      createdAt: daysAgoIso(2),
     },
     {
       id: 'tx_2',
@@ -34,7 +37,7 @@ export const mockDb = (() => {
       title: 'Supermercado',
       description: 'Cartão',
       amount: -326.4,
-      createdAt: nowIso(),
+      createdAt: daysAgoIso(3),
     },
     {
       id: 'tx_3',
@@ -43,7 +46,88 @@ export const mockDb = (() => {
       title: 'Transferência recebida',
       description: 'De Conta Corrente',
       amount: 500,
-      createdAt: nowIso(),
+      createdAt: daysAgoIso(5),
+    },
+    {
+      id: 'tx_4',
+      accountId: 'acc_1',
+      type: 'debit',
+      title: 'Netflix',
+      description: 'Assinatura',
+      amount: -55.9,
+      createdAt: daysAgoIso(5),
+    },
+    {
+      id: 'tx_5',
+      accountId: 'acc_1',
+      type: 'debit',
+      title: 'Uber',
+      description: 'Mobilidade',
+      amount: -42.3,
+      createdAt: daysAgoIso(6),
+    },
+    {
+      id: 'tx_6',
+      accountId: 'acc_1',
+      type: 'credit',
+      title: 'PIX recebido',
+      description: 'Maria S.',
+      amount: 180,
+      createdAt: daysAgoIso(7),
+    },
+    {
+      id: 'tx_7',
+      accountId: 'acc_1',
+      type: 'debit',
+      title: 'Farmácia',
+      description: 'Cartão',
+      amount: -89.5,
+      createdAt: daysAgoIso(8),
+    },
+    {
+      id: 'tx_8',
+      accountId: 'acc_1',
+      type: 'transfer',
+      title: 'Transferência enviada',
+      description: 'João P. • Onda Bank',
+      amount: -200,
+      createdAt: daysAgoIso(9),
+    },
+    {
+      id: 'tx_9',
+      accountId: 'acc_1',
+      type: 'debit',
+      title: 'Energia elétrica',
+      description: 'Débito automático',
+      amount: -142.8,
+      createdAt: daysAgoIso(12),
+    },
+    {
+      id: 'tx_10',
+      accountId: 'acc_2',
+      type: 'credit',
+      title: 'Rendimento',
+      description: 'Resgate CDI',
+      amount: 12.44,
+      createdAt: daysAgoIso(1),
+    },
+    {
+      id: 'tx_11',
+      accountId: 'acc_2',
+      type: 'debit',
+      title: 'Academia',
+      description: 'Mensalidade',
+      amount: -99.9,
+      createdAt: daysAgoIso(4),
+    },
+    {
+      id: 'tx_12',
+      accountId: 'acc_2',
+      type: 'transfer',
+      title: 'PIX enviado',
+      description: 'Presente',
+      amount: -150,
+      createdAt: daysAgoIso(10),
     },
   ]
 
