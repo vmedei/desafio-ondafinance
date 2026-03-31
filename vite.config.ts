@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
+  /** GitHub Pages (projeto): `VITE_BASE_PATH=/nome-do-repo/` no CI. Local: `/`. */
+  base: process.env.VITE_BASE_PATH ?? '/',
   plugins: [react()],
   resolve: {
     alias: {

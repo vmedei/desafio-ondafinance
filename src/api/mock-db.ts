@@ -133,7 +133,8 @@ export const mockDb = (() => {
 
   let session: Session | null = null
 
-  function login(email: string, _password: string) {
+  function login(email: string, password: string) {
+    void password
     const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? users[0]
     const token = `mock_${user.id}_${Date.now()}`
     session = { token, userId: user.id }

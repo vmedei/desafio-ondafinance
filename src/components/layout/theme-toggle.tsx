@@ -9,11 +9,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { applyTheme, useUiStore } from '@/stores/ui-store'
 
+type ThemeChoice = 'light' | 'dark' | 'system'
+
 export function ThemeToggle() {
-  const theme = useUiStore((s) => s.theme)
   const setTheme = useUiStore((s) => s.setTheme)
 
-  function choose(t: typeof theme) {
+  function choose(t: ThemeChoice) {
     setTheme(t)
     applyTheme(t)
   }

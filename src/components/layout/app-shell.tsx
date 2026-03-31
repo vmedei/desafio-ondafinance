@@ -118,6 +118,8 @@ export function AppShell() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
+    // Fecha o drawer ao mudar de rota (incl. voltar/avançar no navegador).
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronizar UI com navegação externa
     setMobileNavOpen(false)
   }, [location.pathname])
 

@@ -36,12 +36,26 @@ Aplicação web (mock) que simula um **internet banking** enxuto: login, dashboa
 - Axios (adapter mock local)
 - Vitest + Testing Library
 
+## CI/CD e publicação (GitHub Pages)
+
+- Workflow em [`.github/workflows/ci.yml`](.github/workflows/ci.yml): em cada *push* na branch **`main`** roda **lint**, **testes** e **build**; se tudo passar, faz **deploy automático** para **GitHub Pages**.
+- Passo a passo completo (ativar Pages, URL, repositório `usuario.github.io`, *troubleshooting*): [`docs/publicacao-github-pages.md`](docs/publicacao-github-pages.md).
+
 ## Rodar localmente
 
 ```bash
 npm install
 npm run dev
 ```
+
+Build de produção com o mesmo `base` do GitHub Pages (substitua `nome-do-repo` pelo nome do seu repositório):
+
+```bash
+set VITE_BASE_PATH=/nome-do-repo/
+npm run build
+```
+
+No PowerShell use `$env:VITE_BASE_PATH="/nome-do-repo/"; npm run build`. Em Linux/macOS: `VITE_BASE_PATH=/nome-do-repo/ npm run build`.
 
 ## Testes
 

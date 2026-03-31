@@ -10,7 +10,14 @@ import { TransactionDetailsPage } from '@/routes/transaction-details-page'
 import { TransactionsPage } from '@/routes/transactions-page'
 import { TransferPage } from '@/routes/transfer-page'
 
-export const router = createBrowserRouter([
+/** Alinha com `base` do Vite (ex.: GitHub Pages em `/repo/`). */
+function routerBasename(): string | undefined {
+  const base = import.meta.env.BASE_URL
+  if (base === '/') return undefined
+  return base.endsWith('/') ? base.slice(0, -1) : base
+}
+
+const routes = [
   { path: '/', element: <Navigate to="/app" replace /> },
   { path: '/login', element: <LoginPage /> },
   {
@@ -29,5 +36,9 @@ export const router = createBrowserRouter([
     ],
   },
   { path: '*', element: <NotFoundPage /> },
-])
+]
+
+const basename = routerBasename()
+
+export const router = createBrowserRouter(routes, basename ? { basename } : undefined)
 
