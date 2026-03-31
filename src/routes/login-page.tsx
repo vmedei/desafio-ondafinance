@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { AnimatedBackground } from '@/features/auth/components/animated-background'
+import { logoUrl } from '@/lib/public-assets'
 import { useAuthStore } from '@/stores/auth-store'
 
 const schema = z.object({
@@ -64,7 +65,7 @@ export function LoginPage() {
           >
             <div className="text-center mb-8">
               <div className="mx-auto mb-4 flex items-center justify-center">
-                <img src="/odafinance.svg" alt="Onda Finance" className="h-10 w-auto" />
+                <img src={logoUrl} alt="Onda Finance" className="h-10 w-auto" />
               </div>
 
 

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
+import { logoUrl } from '@/lib/public-assets'
 import { useAuthStore } from '@/stores/auth-store'
 
 function NavItem({
@@ -56,7 +57,7 @@ function SidebarNav({
         className="flex items-center gap-3 px-2 py-2 anim-sm hover:opacity-90"
       >
         <img
-          src="/odafinance.svg"
+          src={logoUrl}
           alt=""
           className="h-10 w-auto max-w-[104px] shrink-0 object-contain object-left"
           width={104}
@@ -162,7 +163,7 @@ export function AppShell() {
                   onClick={() => setMobileNavOpen(false)}
                 >
                   <img
-                    src="/odafinance.svg"
+                    src={logoUrl}
                     alt="Onda Finance"
                     className="h-9 w-auto max-w-[min(120px,40vw)] object-contain object-left"
                     width={120}
