@@ -16,7 +16,11 @@ import { useAuthStore } from '@/stores/auth-store'
 export function createTestQueryClient() {
   return new QueryClient({
     defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
+      queries: {
+        retry: false,
+        gcTime: 0,
+        refetchOnWindowFocus: false,
+      },
       mutations: { retry: false },
     },
   })

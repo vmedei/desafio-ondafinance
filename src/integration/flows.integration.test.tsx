@@ -19,7 +19,7 @@ describe('integração: login', () => {
   })
 
   it('autentica com o mock e exibe o dashboard', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     renderIntegrationApp('/login')
 
     await user.click(screen.getByRole('button', { name: /entrar/i }))
@@ -60,7 +60,7 @@ describe('integração: transferência', () => {
   })
 
   it('valida o formulário e exibe erros ao enviar sem dados obrigatórios', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     renderIntegrationApp('/app/transferir')
 
     await screen.findByRole('heading', { name: /transferir/i }, { timeout: 10_000 })

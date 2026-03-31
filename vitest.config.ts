@@ -17,6 +17,9 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
     css: true,
+    /** CI (GitHub Actions) costuma ser mais lento; fluxos de integração passam disso com folga. */
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
   },
 })
 
