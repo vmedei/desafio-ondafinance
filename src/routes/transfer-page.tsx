@@ -8,6 +8,7 @@ import { ArrowRight } from 'lucide-react'
 import { BalanceDisplay } from '@/components/balance-display'
 import { useAccounts, useTransfer } from '@/features/banking/queries'
 import { CpfCnpjInput, MoneyInput } from '@/components/form/masked-inputs'
+import { getApiErrorMessage } from '@/lib/api-error-message'
 import { formatBRL } from '@/lib/format'
 import { onlyDigits } from '@/lib/input-masks'
 import { toast } from '@/hooks/use-toast'
@@ -109,13 +110,15 @@ export function TransferPage() {
                   navigate('/app/transacoes', { replace: true })
                 },
                 onError: (error) => {
+                  const description = getApiErrorMessage(
+                    error,
+                    'Não foi possível concluir a operação. Tente novamente.',
+                  )
+                  const insufficient = /saldo insuficiente/i.test(description)
                   toast({
                     variant: 'destructive',
-                    title: 'Transferência não realizada',
-                    description:
-                      error instanceof Error
-                        ? error.message
-                        : 'Não foi possível concluir a operação. Tente novamente.',
+                    title: insufficient ? 'Saldo insuficiente' : 'Transferência não realizada',
+                    description,
                     duration: 9000,
                   })
                 },

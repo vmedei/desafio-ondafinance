@@ -1,4 +1,9 @@
-import type { AxiosAdapter, AxiosResponse } from 'axios'
+import {
+  AxiosError,
+  type AxiosAdapter,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios'
 
 import { api } from '@/api/client'
 import { mockDb } from '@/api/mock-db'
@@ -7,8 +12,6 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms))
 }
 
-// AxiosResponse espera InternalAxiosRequestConfig (interno) em `config`.
-// Aqui é mock local; manter tipagem simples evita incompatibilidades entre versões.
 function jsonResponse<T>(config: unknown, data: T, status = 200): AxiosResponse<T> {
   return {
     data,
@@ -19,8 +22,17 @@ function jsonResponse<T>(config: unknown, data: T, status = 200): AxiosResponse<
   }
 }
 
-function errorResponse(config: unknown, message: string, status = 400) {
-  return jsonResponse(config, { message }, status)
+/**
+ * Axios com adapter customizado não chama `settle`: se devolvermos 4xx como resposta resolvida,
+ * o cliente trata como sucesso. Erros devem ir como Promise.reject + AxiosError + response.
+ */
+function rejectAxios(config: unknown, message: string, status: number): Promise<never> {
+  const response = jsonResponse(config, { message }, status)
+  const code =
+    status >= 500 ? AxiosError.ERR_BAD_RESPONSE : AxiosError.ERR_BAD_REQUEST
+  return Promise.reject(
+    new AxiosError(message, code, config as InternalAxiosRequestConfig, undefined, response),
+  )
 }
 
 function parseBody(config: unknown) {
@@ -51,13 +63,13 @@ export function createMockAdapter(): AxiosAdapter {
         const body = (parseBody(config) ?? {}) as { email?: string; password?: string }
         const email = body.email?.trim() ?? ''
         const password = body.password ?? ''
-        if (!email) return errorResponse(config, 'E-mail é obrigatório.', 422)
+        if (!email) return rejectAxios(config, 'E-mail é obrigatório.', 422)
         const { token, user } = mockDb.login(email, password)
         return jsonResponse(config, { token, user })
       }
 
       if (!isAuthed) {
-        return errorResponse(config, 'Não autenticado.', 401)
+        return rejectAxios(config, 'Não autenticado.', 401)
       }
 
       if (method === 'post' && url === '/auth/logout') {
@@ -91,7 +103,7 @@ export function createMockAdapter(): AxiosAdapter {
       if (method === 'get' && url.startsWith('/transaction/')) {
         const id = url.replace('/transaction/', '')
         const tx = mockDb.getTransaction(id)
-        if (!tx) return errorResponse(config, 'Transação não encontrada.', 404)
+        if (!tx) return rejectAxios(config, 'Transação não encontrada.', 404)
         return jsonResponse(config, { transaction: tx })
       }
 
@@ -115,10 +127,10 @@ export function createMockAdapter(): AxiosAdapter {
         return jsonResponse(config, result, 201)
       }
 
-      return errorResponse(config, 'Rota não implementada no mock.', 404)
+      return rejectAxios(config, 'Rota não implementada no mock.', 404)
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Erro inesperado.'
-      return errorResponse(config, message, 400)
+      return rejectAxios(config, message, 400)
     }
   }
 }
@@ -130,4 +142,3 @@ export function initMockApi() {
   mockApiInitialized = true
   api.defaults.adapter = createMockAdapter()
 }
-
