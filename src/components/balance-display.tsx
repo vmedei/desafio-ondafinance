@@ -1,9 +1,9 @@
-import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
 import { formatBRL } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useUiStore } from '@/stores/ui-store'
 
 export type BalanceDisplayProps = {
   currency: string
@@ -12,7 +12,8 @@ export type BalanceDisplayProps = {
 }
 
 export function BalanceDisplay({ currency, balance, className }: BalanceDisplayProps) {
-  const [hidden, setHidden] = useState(false)
+  const hidden = useUiStore((s) => Boolean(s.balanceHidden))
+  const toggleBalanceHidden = useUiStore((s) => s.toggleBalanceHidden)
 
   return (
     <div
@@ -27,7 +28,7 @@ export function BalanceDisplay({ currency, balance, className }: BalanceDisplayP
           variant="ghost"
           size="icon"
           className="anim-sm size-8 shrink-0"
-          onClick={() => setHidden((v) => !v)}
+          onClick={() => toggleBalanceHidden()}
           aria-label={hidden ? 'Mostrar saldo' : 'Ocultar saldo'}
         >
           <span key={hidden ? 'hidden' : 'visible'} className="balance-icon inline-flex">
@@ -39,7 +40,7 @@ export function BalanceDisplay({ currency, balance, className }: BalanceDisplayP
         key={hidden ? 'hidden' : 'visible'}
         className="balance-swap text-right text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl"
       >
-        {hidden ? '***' : formatBRL(balance)}
+        {hidden ? 'R$ ***' : formatBRL(balance)}
       </p>
     </div>
   )

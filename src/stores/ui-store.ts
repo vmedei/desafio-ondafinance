@@ -6,6 +6,10 @@ type Theme = 'light' | 'dark' | 'system'
 type UiState = {
   theme: Theme
   setTheme: (t: Theme) => void
+  /** Quando `true`, o saldo é exibido como oculto (***). Persistido entre páginas/sessões. */
+  balanceHidden: boolean
+  setBalanceHidden: (hidden: boolean) => void
+  toggleBalanceHidden: () => void
 }
 
 export const useUiStore = create<UiState>()(
@@ -13,6 +17,9 @@ export const useUiStore = create<UiState>()(
     (set) => ({
       theme: 'dark',
       setTheme: (theme) => set({ theme }),
+      balanceHidden: false,
+      setBalanceHidden: (balanceHidden) => set({ balanceHidden }),
+      toggleBalanceHidden: () => set((s) => ({ balanceHidden: !s.balanceHidden })),
     }),
     { name: 'onda-ui' },
   ),
