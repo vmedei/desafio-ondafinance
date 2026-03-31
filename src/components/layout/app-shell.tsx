@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, NavLink, Outlet } from 'react-router-dom'
 import { CreditCard, Home, LogOut, Menu, Send, Settings } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -115,14 +115,8 @@ function SidebarNav({
 }
 
 export function AppShell() {
-  const location = useLocation()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-
-  useEffect(() => {
-    // Fecha o drawer ao mudar de rota (incl. voltar/avançar no navegador).
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronizar UI com navegação externa
-    setMobileNavOpen(false)
-  }, [location.pathname])
+  const closeMobileNav = () => setMobileNavOpen(false)
 
   return (
     <div className="min-h-dvh bg-background">
@@ -153,14 +147,14 @@ export function AppShell() {
                   <SheetContent side="left" className="p-0">
                     <SidebarNav
                       className="flex h-full flex-col overflow-y-auto p-4 pb-8"
-                      onNavigate={() => setMobileNavOpen(false)}
+                      onNavigate={closeMobileNav}
                     />
                   </SheetContent>
                 </Sheet>
                 <Link
                   to="/app"
                   className="anim-sm flex min-w-0 items-center hover:opacity-90"
-                  onClick={() => setMobileNavOpen(false)}
+                  onClick={closeMobileNav}
                 >
                   <img
                     src={logoUrl}

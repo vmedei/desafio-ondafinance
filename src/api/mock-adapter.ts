@@ -123,12 +123,11 @@ export function createMockAdapter(): AxiosAdapter {
   }
 }
 
-export function initMockApi() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const anyGlobal = globalThis as any
-  if (anyGlobal.__ONDA_MOCK_API__) return
-  anyGlobal.__ONDA_MOCK_API__ = true
+let mockApiInitialized = false
 
+export function initMockApi() {
+  if (mockApiInitialized) return
+  mockApiInitialized = true
   api.defaults.adapter = createMockAdapter()
 }
 
