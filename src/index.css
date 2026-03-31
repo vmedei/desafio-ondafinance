@@ -43,6 +43,12 @@
     /* Auth (login) glass tokens */
     --auth-glass-bg: 0 0% 100% / 0.72;
     --auth-glass-border: 0 0% 100% / 0.18;
+
+    /* Scrollbar (WebKit + Firefox) */
+    --scrollbar-size: 6px;
+    --scrollbar-track: hsl(var(--muted) / 0.45);
+    --scrollbar-thumb: hsl(var(--muted-foreground) / 0.28);
+    --scrollbar-thumb-hover: hsl(var(--primary) / 0.55);
   }
 
   .dark {
@@ -69,6 +75,10 @@
     /* Auth (login) glass tokens */
     --auth-glass-bg: 220 20% 10% / 0.6;
     --auth-glass-border: 220 15% 22% / 0.5;
+
+    --scrollbar-track: hsl(var(--muted) / 0.35);
+    --scrollbar-thumb: hsl(var(--muted-foreground) / 0.38);
+    --scrollbar-thumb-hover: hsl(var(--primary) / 0.65);
   }
 
   * {
@@ -183,6 +193,39 @@
   .anim-lg {
     transition-timing-function: var(--anim-ease-in-out);
     transition-duration: var(--anim-duration-lg);
+  }
+
+  /* Scroll fino estilizado (áreas com overflow) */
+  .scrollbar-onda {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  .scrollbar-onda::-webkit-scrollbar {
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
+  }
+
+  .scrollbar-onda::-webkit-scrollbar-track {
+    margin-block: 4px;
+    background: var(--scrollbar-track);
+    border-radius: 9999px;
+  }
+
+  .scrollbar-onda::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background var(--anim-duration-sm) var(--anim-ease-out);
+  }
+
+  .scrollbar-onda::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  .scrollbar-onda::-webkit-scrollbar-corner {
+    background: transparent;
   }
 
   /* Dashboard: entrada suave + lista em cascata */

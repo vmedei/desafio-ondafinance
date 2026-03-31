@@ -119,17 +119,17 @@ export function AppShell() {
   const closeMobileNav = () => setMobileNavOpen(false)
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="h-dvh overflow-hidden bg-background">
       <div className="fixed right-4 top-4 z-50 md:right-6 md:top-6">
         <ThemeToggle />
       </div>
-      <div className="mx-auto grid min-h-dvh max-w-6xl grid-cols-1 md:grid-cols-[260px_1fr]">
-        <aside className="hidden border-r md:block">
-          <SidebarNav className="flex h-full min-h-dvh flex-col p-4" />
+      <div className="mx-auto flex h-full max-w-6xl">
+        <aside className="hidden h-full w-[260px] shrink-0 border-r md:flex md:flex-col">
+          <SidebarNav className="scrollbar-onda flex h-full min-h-0 flex-col overflow-y-auto p-4" />
         </aside>
 
-        <div className="flex min-w-0 flex-col">
-          <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <header className="z-40 shrink-0 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
               <div className="flex min-w-0 flex-1 items-center gap-2">
                 <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
@@ -146,7 +146,7 @@ export function AppShell() {
                   </SheetTrigger>
                   <SheetContent side="left" className="p-0">
                     <SidebarNav
-                      className="flex h-full flex-col overflow-y-auto p-4 pb-8"
+                      className="scrollbar-onda flex h-full flex-col overflow-y-auto p-4 pb-8"
                       onNavigate={closeMobileNav}
                     />
                   </SheetContent>
@@ -168,7 +168,7 @@ export function AppShell() {
             </div>
           </header>
 
-          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-6">
+          <main className="scrollbar-onda mx-auto min-h-0 w-full max-w-6xl flex-1 overflow-y-auto overscroll-contain px-4 py-6 md:px-6">
             <Outlet />
           </main>
         </div>
