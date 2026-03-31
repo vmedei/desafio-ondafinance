@@ -16,13 +16,6 @@ Aplicação web (mock) que simula um **internet banking** enxuto: login, dashboa
 | **Componentes** | Peças reutilizáveis (ex.: exibição de saldo com ocultar/mostrar **persistido** entre páginas, filtros de transações, *layout* com sidebar desktop e *drawer* no mobile). |
 | **Testes** | **Vitest** + Testing Library em trechos críticos (ex.: máscaras, regras do mock). |
 
-### Destaques para quem avalia o código
-
-- **Separação de responsabilidades**: rotas leves, hooks de dados em `features/`, tipos compartilhados em `types/`, cliente HTTP isolado.
-- **Experiência de uso**: navegação lateral responsiva, filtros de extrato sem recarregar a página inteira (cache do React Query), feedback de carregamento e erro nas listas.
-- **Manutenibilidade**: TypeScript estrito, validação declarativa com Zod, componentes acessíveis (Radix + rótulos/aria onde cabe).
-- **Documentação**: README com visão de produto e seção de **segurança** (conceitual, pensada para contexto financeiro).
-
 ## Stack
 
 - React 19 + TypeScript
