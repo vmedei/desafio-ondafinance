@@ -219,6 +219,18 @@ export const mockDb = (() => {
     return { transaction: tx, account: from }
   }
 
+  const initialAccountsSnapshot = structuredClone(accounts)
+  const initialTransactionsSnapshot = structuredClone(transactions)
+
+  /** Restaura contas, transações e sessão do mock (uso em testes de integração / isolamento). */
+  function resetMockDatabase() {
+    session = null
+    accounts.length = 0
+    accounts.push(...structuredClone(initialAccountsSnapshot))
+    transactions.length = 0
+    transactions.push(...structuredClone(initialTransactionsSnapshot))
+  }
+
   return {
     login,
     logout,
@@ -228,6 +240,7 @@ export const mockDb = (() => {
     listTransactions,
     getTransaction,
     transfer,
+    resetMockDatabase,
   }
 })()
 

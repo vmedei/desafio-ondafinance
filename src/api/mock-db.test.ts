@@ -1,6 +1,10 @@
 import { mockDb } from '@/api/mock-db'
 
 describe('mockDb.transfer', () => {
+  beforeEach(() => {
+    mockDb.resetMockDatabase()
+  })
+
   it('deve lançar erro se saldo insuficiente', () => {
     const acc = mockDb.listAccounts()[0]
     expect(() =>
