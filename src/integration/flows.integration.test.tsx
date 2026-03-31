@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
@@ -42,7 +42,12 @@ describe('integração: transferência', () => {
     renderIntegrationApp('/app/transferir')
 
     await screen.findByRole('heading', { name: /transferir/i }, { timeout: 10_000 })
-    await screen.findByLabelText(/selecionar conta de origem/i)
+    const fromAccountTrigger = await screen.findByLabelText(/selecionar conta de origem/i)
+    
+    // aguarda a conta default ser aplicada (evita submit com fromAccountId vazio em CI lento)
+    await waitFor(() => expect(fromAccountTrigger).not.toHaveTextContent(/selecione\.\.\./i), {
+      timeout: 10_000,
+    })
 
     await user.type(screen.getByLabelText(/favorecido/i), 'Maria Silva')
     await user.type(screen.getByLabelText(/cpf\/cnpj/i), '52998224725')
