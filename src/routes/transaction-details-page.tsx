@@ -6,6 +6,7 @@ import { useAccounts, useTransaction } from '@/features/banking/queries'
 import { formatBRL, formatDateTime } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
 import type { TransactionType } from '@/types/banking'
 
@@ -99,9 +100,9 @@ export function TransactionDetailsPage() {
         className="dashboard-enter overflow-hidden shadow-4"
         style={{ ['--dashboard-delay' as string]: '80ms' }}
       >
-        {(txQ.isLoading || tx) && (
+        {(txQ.isPending || tx) && (
           <CardHeader className="pb-0">
-            {txQ.isLoading ? (
+            {txQ.isPending ? (
               <>
                 <div className="h-8 w-48 max-w-full animate-pulse rounded-md bg-muted" />
                 <div className="mt-2 h-4 w-36 animate-pulse rounded-md bg-muted/80" />
@@ -121,8 +122,18 @@ export function TransactionDetailsPage() {
         )}
 
         <CardContent className="pt-6">
-          {txQ.isLoading ? (
-            <p className="text-sm text-muted-foreground">Carregando detalhes…</p>
+          {txQ.isPending ? (
+            <div className="space-y-6" aria-busy="true" aria-label="Carregando detalhes">
+              <Separator />
+              <div className="grid gap-6 sm:grid-cols-2">
+                {Array.from({ length: 4 }, (_, i) => (
+                  <div key={i} className="grid gap-2">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-4 w-full max-w-xs" />
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : txQ.isError ? (
             <p className="text-sm text-destructive">
               {txQ.error instanceof Error ? txQ.error.message : 'Erro ao carregar.'}

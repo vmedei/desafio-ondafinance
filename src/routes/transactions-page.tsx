@@ -4,7 +4,9 @@ import { ArrowDownRight, ArrowUpRight } from 'lucide-react'
 import type { DateRange } from 'react-day-picker'
 
 import { BalanceDisplay } from '@/components/balance-display'
+import { TransactionListSkeleton } from '@/components/transaction-list-skeleton'
 import { TransactionsFilters } from '@/components/transactions-filters'
+import { Skeleton } from '@/components/ui/skeleton'
 import { accountFilterLabel } from '@/lib/account-filter-label'
 import { useAccounts, useTransactions } from '@/features/banking/queries'
 import { formatBRL, formatDateTime } from '@/lib/format'
@@ -35,8 +37,9 @@ function Amount({ value }: { value: number }) {
 
 export function TransactionsPage() {
 
-  const { data: accountsData } = useAccounts()
-  const accounts = accountsData?.accounts ?? []
+  const accountsQ = useAccounts()
+  const accounts = accountsQ.data?.accounts ?? []
+  const accountsPending = accountsQ.isPending
   const [accountId, setAccountId] = useState<string>('all')
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
@@ -68,8 +71,15 @@ export function TransactionsPage() {
           </p>
         </div>
 
-        {selectedAccount && (
-          <BalanceDisplay currency={selectedAccount.currency} balance={selectedAccount.balance} />
+        {accountsPending ? (
+          <div className="flex flex-col items-end gap-2" aria-hidden>
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-11 w-[11rem] rounded-xl" />
+          </div>
+        ) : (
+          selectedAccount && (
+            <BalanceDisplay currency={selectedAccount.currency} balance={selectedAccount.balance} />
+          )
         )}
       </div>
 
@@ -80,9 +90,15 @@ export function TransactionsPage() {
         <CardHeader className="pb-2">
           <CardTitle>Movimentações</CardTitle>
           <CardDescription>
-            {txQ.isLoading ? 'Carregando...' : `${txs.length} transações`}
-            {accountId !== 'all' ? ` · ${accountFilterLabel(accountId, accounts)}` : ''}
-            {dateRangeQuery ? ' · período filtrado' : ''}
+            {txQ.isPending ? (
+              <Skeleton className="inline-block h-4 w-48 max-w-full align-middle" />
+            ) : (
+              <>
+                {`${txs.length} transações`}
+                {accountId !== 'all' ? ` · ${accountFilterLabel(accountId, accounts)}` : ''}
+                {dateRangeQuery ? ' · período filtrado' : ''}
+              </>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -93,8 +109,8 @@ export function TransactionsPage() {
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
           />
-          {txQ.isLoading ? (
-            <p className="text-sm text-muted-foreground">Carregando...</p>
+          {txQ.isPending ? (
+            <TransactionListSkeleton count={8} />
           ) : txQ.isError ? (
             <p className="text-sm text-destructive">
               {txQ.error instanceof Error ? txQ.error.message : 'Erro ao carregar.'}

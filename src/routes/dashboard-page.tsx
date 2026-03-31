@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { ArrowDownRight, ArrowUpRight, Send } from 'lucide-react'
 
 import { BalanceDisplay } from '@/components/balance-display'
+import { TransactionListSkeleton } from '@/components/transaction-list-skeleton'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAccounts, useTransactions } from '@/features/banking/queries'
 import { formatBRL, formatDateTime } from '@/lib/format'
 import { Button } from '@/components/ui/button'
@@ -58,8 +60,8 @@ function AccountTransactionsPanel({
         </div>
       </CardHeader>
       <CardContent className="relative pb-20 sm:pb-24">
-        {txQ.isLoading ? (
-          <p className="text-sm text-muted-foreground">Carregando...</p>
+        {txQ.isPending ? (
+          <TransactionListSkeleton count={6} />
         ) : txs.length === 0 ? (
           <p className="text-sm text-muted-foreground">Sem transações.</p>
         ) : (
@@ -104,6 +106,7 @@ export function DashboardPage() {
 
   const accountsQ = useAccounts()
   const accounts = accountsQ.data?.accounts ?? []
+  const accountsPending = accountsQ.isPending
   const [accountId, setAccountId] = useState<string | undefined>(undefined)
 
   const selectedId = useMemo(() => accountId ?? accounts[0]?.id, [accountId, accounts])
@@ -123,31 +126,72 @@ export function DashboardPage() {
           <p className="text-sm text-muted-foreground">Visão rápida das suas contas e transações.</p>
         </div>
 
-        {selectedAccount && (
-          <BalanceDisplay currency={selectedAccount.currency} balance={selectedAccount.balance} />
+        {accountsPending ? (
+          <div className="flex flex-col items-end gap-2" aria-hidden>
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-11 w-[11rem] rounded-xl" />
+          </div>
+        ) : (
+          selectedAccount && (
+            <BalanceDisplay currency={selectedAccount.currency} balance={selectedAccount.balance} />
+          )
         )}
       </div>
 
-      <Tabs
-        value={selectedId ?? ''}
-        onValueChange={(v) => setAccountId(v)}
-        className="dashboard-enter"
-        style={{ ['--dashboard-delay' as string]: '80ms' }}
-      >
-        <TabsList className="w-full justify-start">
-          {accounts.map((a) => (
-            <TabsTrigger key={a.id} value={a.id}>
-              {a.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      {accountsPending ? (
+        <div
+          className="dashboard-enter space-y-4"
+          style={{ ['--dashboard-delay' as string]: '80ms' }}
+          aria-busy="true"
+          aria-label="Carregando contas"
+        >
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-10 w-36 rounded-md" />
+            <Skeleton className="h-10 w-28 rounded-md" />
+            <Skeleton className="h-10 w-28 rounded-md" />
+          </div>
+          <Card className="dashboard-enter relative overflow-hidden" style={{ ['--dashboard-delay' as string]: '120ms' }}>
+            <CardHeader className="pb-2">
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="mt-2 h-4 w-full max-w-md" />
+            </CardHeader>
+            <CardContent className="relative pb-20 sm:pb-24">
+              <TransactionListSkeleton count={6} />
+              <Button
+                asChild
+                className="anim-sm absolute bottom-4 right-4 z-10 gap-2 rounded-full shadow-4"
+                size="lg"
+              >
+                <Link to="/app/transferir">
+                  <Send className="size-4" />
+                  <span>Transferir</span>
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <Tabs
+          value={selectedId ?? ''}
+          onValueChange={(v) => setAccountId(v)}
+          className="dashboard-enter"
+          style={{ ['--dashboard-delay' as string]: '80ms' }}
+        >
+          <TabsList className="w-full justify-start">
+            {accounts.map((a) => (
+              <TabsTrigger key={a.id} value={a.id}>
+                {a.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {accounts.map((a) => (
-          <TabsContent key={a.id} value={a.id}>
-            <AccountTransactionsPanel accountId={a.id} accountName={a.name} />
-          </TabsContent>
-        ))}
-      </Tabs>
+          {accounts.map((a) => (
+            <TabsContent key={a.id} value={a.id}>
+              <AccountTransactionsPanel accountId={a.id} accountName={a.name} />
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
 
       {accountsQ.isError && (
         <Card>
