@@ -27,7 +27,7 @@ function TransactionAmount({ value }: { value: number }) {
   return (
     <div
       className={
-        positive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+        positive ? 'text-primary' : 'text-destructive'
       }
     >
       <div className="flex items-center gap-2">

@@ -17,6 +17,12 @@ Neste projeto:
 - `--background`, `--foreground`, `--card`, `--popover`, `--muted`, `--border`, etc ficam em `src/index.css`
 - `--primary` é fixo no brand `#24E478` (HSL \(146.3 78% 51.8%\))
 
+### Valores monetários (crédito / débito)
+
+- **Positivo (crédito, valor ≥ 0 no extrato)**: `text-primary`; em *chips* ou fundo suave: `bg-primary/10 text-primary`.
+- **Negativo (débito)**: `text-destructive`; fundo suave: `bg-destructive/10 text-destructive`.
+- Evitar paletas ad hoc (`emerald-*`, `rose-*`, etc.) para manter tema claro/escuro e a marca alinhados aos tokens.
+
 ## Motion / Animações
 
 ### Tokens
