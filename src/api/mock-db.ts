@@ -156,8 +156,29 @@ export const mockDb = (() => {
     return accounts.slice()
   }
 
-  function listTransactions(accountId?: string) {
-    const list = accountId ? transactions.filter((t) => t.accountId === accountId) : transactions
+  function startOfLocalDay(ymd: string) {
+    const [y, m, d] = ymd.split('-').map(Number)
+    return new Date(y, m - 1, d, 0, 0, 0, 0).getTime()
+  }
+
+  function endOfLocalDay(ymd: string) {
+    const [y, m, d] = ymd.split('-').map(Number)
+    return new Date(y, m - 1, d, 23, 59, 59, 999).getTime()
+  }
+
+  function listTransactions(
+    accountId?: string,
+    filters?: { fromDate?: string; toDate?: string },
+  ) {
+    let list = accountId ? transactions.filter((t) => t.accountId === accountId) : transactions.slice()
+    if (filters?.fromDate) {
+      const start = startOfLocalDay(filters.fromDate)
+      list = list.filter((t) => new Date(t.createdAt).getTime() >= start)
+    }
+    if (filters?.toDate) {
+      const end = endOfLocalDay(filters.toDate)
+      list = list.filter((t) => new Date(t.createdAt).getTime() <= end)
+    }
     return list
       .slice()
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())

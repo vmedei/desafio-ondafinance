@@ -251,5 +251,34 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
     }
+
+    .rdp-root.rdp-onda {
+      --rdp-animation_duration: 0.01ms;
+    }
+  }
+
+  /*
+   * react-day-picker: estilos base vêm de `main.tsx` antes deste arquivo.
+   * `.rdp-root.rdp-onda` tem especificidade maior que `.rdp-root` da lib (evita blue / #f0f0ff).
+   */
+  .rdp-root.rdp-onda {
+    --rdp-accent-color: hsl(var(--primary));
+    --rdp-accent-background-color: hsl(var(--primary) / 0.14);
+    --rdp-range_middle-background-color: hsl(var(--primary) / 0.12);
+    --rdp-range_middle-color: hsl(var(--foreground));
+    --rdp-range_start-color: hsl(var(--primary-foreground));
+    --rdp-range_end-color: hsl(var(--primary-foreground));
+    --rdp-range_start-date-background-color: hsl(var(--primary));
+    --rdp-range_end-date-background-color: hsl(var(--primary));
+    --rdp-today-color: hsl(var(--primary));
+    --rdp-selected-border: 2px solid hsl(var(--primary));
+    --rdp-outside-opacity: 0.45;
+    --rdp-animation_duration: var(--anim-duration-md);
+    --rdp-animation_timing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .rdp-root.rdp-onda .rdp-dropdown:focus-visible ~ .rdp-caption_label {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }

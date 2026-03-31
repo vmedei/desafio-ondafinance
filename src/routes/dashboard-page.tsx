@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowDownRight, ArrowUpRight, Eye, EyeOff, Send } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Send } from 'lucide-react'
 
+import { BalanceDisplay } from '@/components/balance-display'
 import { useAccounts, useTransactions } from '@/features/banking/queries'
 import { formatBRL, formatDateTime } from '@/lib/format'
 import { Button } from '@/components/ui/button'
@@ -37,7 +38,6 @@ export function DashboardPage() {
   const accountsQ = useAccounts()
   const accounts = accountsQ.data?.accounts ?? []
   const [accountId, setAccountId] = useState<string | undefined>(undefined)
-  const [balanceHidden, setBalanceHidden] = useState(false)
 
   const selectedId = useMemo(() => accountId ?? accounts[0]?.id, [accountId, accounts])
   const txQ = useTransactions(selectedId)
@@ -59,34 +59,7 @@ export function DashboardPage() {
         </div>
 
         {selectedAccount && (
-          <div className="flex shrink-0 flex-col items-stretch gap-1 sm:items-end">
-            <div className="flex items-center justify-between gap-3 sm:justify-end">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Saldo · {selectedAccount.currency}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="anim-sm size-8 shrink-0"
-                onClick={() => setBalanceHidden((v) => !v)}
-                aria-label={balanceHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
-              >
-                <span
-                  key={balanceHidden ? 'hidden' : 'visible'}
-                  className="balance-icon inline-flex"
-                >
-                  {balanceHidden ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-                </span>
-              </Button>
-            </div>
-            <p
-              key={balanceHidden ? 'hidden' : 'visible'}
-              className="balance-swap text-right text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl"
-            >
-              {balanceHidden ? '***' : formatBRL(selectedAccount.balance)}
-            </p>
-          </div>
+          <BalanceDisplay currency={selectedAccount.currency} balance={selectedAccount.balance} />
         )}
       </div>
 

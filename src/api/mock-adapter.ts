@@ -79,7 +79,13 @@ export function createMockAdapter(): AxiosAdapter {
         const qs = qIndex >= 0 ? url.slice(qIndex + 1) : ''
         const params = new URLSearchParams(qs)
         const accountId = params.get('accountId') ?? undefined
-        return jsonResponse(config, { transactions: mockDb.listTransactions(accountId) })
+        const fromDate = params.get('fromDate') ?? undefined
+        const toDate = params.get('toDate') ?? undefined
+        const filters =
+          fromDate || toDate
+            ? { ...(fromDate ? { fromDate } : {}), ...(toDate ? { toDate } : {}) }
+            : undefined
+        return jsonResponse(config, { transactions: mockDb.listTransactions(accountId, filters) })
       }
 
       if (method === 'get' && url.startsWith('/transaction/')) {

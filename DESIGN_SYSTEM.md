@@ -58,3 +58,10 @@ Usar escala consistente (múltiplos de 4px sempre que possível) e padrões Tail
 
 Preferir a escala Tailwind existente e manter hierarquia clara (títulos vs textos vs legendas).
 
+## Calendário e filtro por intervalo de datas
+
+- **Componentes**: `Popover` + `Calendar` (`react-day-picker`) para seleção em intervalo; conteúdo do popover usa `bg-popover`, `border-border`, `shadow-3` (ver `src/components/ui/popover.tsx`).
+- **Estilo do DayPicker**: a classe utilitária `rdp-onda` no `Calendar` liga as variáveis CSS do pacote (`--rdp-accent-color`, intervalo, etc.) aos tokens globais (`--primary`, duração `--anim-duration-md`) em `src/index.css`. Evite cores soltas no JSX do calendário; ajustes visuais passam por essas variáveis ou por tokens.
+- **Motion**: troca de mês/animações internas do DayPicker respeitam `prefers-reduced-motion` via override de `--rdp-animation_duration` no mesmo bloco de utilitários.
+- **Referência de UX**: padrões de calendário e acessibilidade podem seguir a documentação de componentes semelhantes (ex.: [Basis Calendar no Storybook](https://storybook.basis.net/?path=/docs/components-calendar--docs)).
+

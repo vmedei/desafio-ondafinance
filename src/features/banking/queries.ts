@@ -6,6 +6,7 @@ import {
   listAccounts,
   listTransactions,
   logout,
+  type TransactionDateRange,
 } from '@/api/banking'
 import type { TransferInput } from '@/types/banking'
 import { useAuthStore } from '@/stores/auth-store'
@@ -19,11 +20,14 @@ export function useAccounts() {
   })
 }
 
-export function useTransactions(accountId?: string) {
+export function useTransactions(accountId?: string, dateRange?: TransactionDateRange) {
   const token = useAuthStore((s) => s.token)
   return useQuery({
-    queryKey: ['transactions', { accountId: accountId ?? null }],
-    queryFn: async () => listTransactions(token!, accountId),
+    queryKey: [
+      'transactions',
+      { accountId: accountId ?? null, from: dateRange?.from ?? null, to: dateRange?.to ?? null },
+    ],
+    queryFn: async () => listTransactions(token!, accountId, dateRange),
     enabled: Boolean(token),
   })
 }

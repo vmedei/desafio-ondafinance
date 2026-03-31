@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Eye, EyeOff } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
+import { BalanceDisplay } from '@/components/balance-display'
 import { useAccounts, useTransfer } from '@/features/banking/queries'
 import { CpfCnpjInput, MoneyInput } from '@/components/form/masked-inputs'
 import { formatBRL } from '@/lib/format'
@@ -42,7 +43,6 @@ export function TransferPage() {
   const accountsQ = useAccounts()
   const accounts = accountsQ.data?.accounts ?? []
   const transfer = useTransfer()
-  const [balanceHidden, setBalanceHidden] = useState(false)
 
   const defaultFrom = useMemo(() => accounts[0]?.id ?? '', [accounts])
 
@@ -82,31 +82,7 @@ export function TransferPage() {
         </div>
 
         {selected && (
-          <div className="flex shrink-0 flex-col items-stretch gap-1 sm:items-end">
-            <div className="flex items-center justify-between gap-3 sm:justify-end">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Saldo · {selected.currency}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="anim-sm size-8 shrink-0"
-                onClick={() => setBalanceHidden((v) => !v)}
-                aria-label={balanceHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
-              >
-                <span className="balance-icon inline-flex">
-                  {balanceHidden ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-                </span>
-              </Button>
-            </div>
-            <p
-              key={balanceHidden ? 'hidden' : 'visible'}
-              className="balance-swap text-right text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl"
-            >
-              {balanceHidden ? '***' : formatBRL(selected.balance)}
-            </p>
-          </div>
+          <BalanceDisplay currency={selected.currency} balance={selected.balance} />
         )}
       </div>
 

@@ -29,9 +29,20 @@ export async function listAccounts(token: string) {
   return res.data
 }
 
-export async function listTransactions(token: string, accountId?: string) {
-  const qs = accountId ? `?accountId=${encodeURIComponent(accountId)}` : ''
-  const res = await api.get<{ transactions: Transaction[] }>(`/transactions${qs}`, {
+export type TransactionDateRange = { from?: string; to?: string }
+
+export async function listTransactions(
+  token: string,
+  accountId?: string,
+  dateRange?: TransactionDateRange,
+) {
+  const params = new URLSearchParams()
+  if (accountId) params.set('accountId', accountId)
+  if (dateRange?.from) params.set('fromDate', dateRange.from)
+  if (dateRange?.to) params.set('toDate', dateRange.to)
+  const qs = params.toString()
+  const url = qs ? `/transactions?${qs}` : '/transactions'
+  const res = await api.get<{ transactions: Transaction[] }>(url, {
     headers: { Authorization: `Bearer ${token}` },
   })
   return res.data
