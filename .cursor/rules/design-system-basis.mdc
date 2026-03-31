@@ -1,0 +1,31 @@
+---
+description: Fundamentos de UI (inspirado no Basis) para cores/motion/elevação
+alwaysApply: true
+---
+
+# UI Fundamentals (Basis-inspired)
+
+Antes de criar/alterar qualquer componente, layout ou estilo, siga:
+
+## Fonte da verdade
+
+- Tokens e utilitários globais ficam em `DESIGN_SYSTEM.md` e `src/index.css`
+- Evite inventar cores/animacoes avulsas em componentes.
+
+## Cores
+
+- Use tokens (`bg-background`, `text-foreground`, `bg-primary`, `border-border`, etc).
+- **Não** criar hex solto em componente.
+- **Brand primário** é `#24E478` (já mapeado em `--primary`).
+
+## Motion (prioridade)
+
+- Preferir classes `anim-sm`, `anim-md`, `anim-lg` para transições.
+- Para feedback e mudanças de estado, usar motion com intenção (sem exagero).
+- Sempre respeitar `prefers-reduced-motion` (já coberto nos utilitários globais).
+- Durações/easings devem vir dos tokens: `--anim-duration-*` e `--anim-ease-*`.
+
+## Elevação / Sombras
+
+- Usar `shadow-0..shadow-4` (tokens globais), não “sombras custom” por componente.
+

@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 146.3 78% 51.8%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 146.3 78% 51.8%;
+    --radius: 0.75rem;
+
+    /* Basis-inspired motion tokens */
+    --anim-duration-sm: 100ms;
+    --anim-duration-md: 300ms;
+    --anim-duration-lg: 500ms;
+    --anim-ease-in: ease-in;
+    --anim-ease-out: ease-out;
+    --anim-ease-in-out: ease-in-out;
+
+    /* Basis-inspired elevation tokens */
+    --shadow-0: none;
+    --shadow-1: 0px 1px 2px 1px rgba(10, 13, 16, 0.09);
+    --shadow-2: 0px 2px 4px 2px rgba(10, 13, 16, 0.1);
+    --shadow-3: 0px 3px 6px 3px rgba(10, 13, 16, 0.11);
+    --shadow-4: 0px 4px 8px 4px rgba(10, 13, 16, 0.12);
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 146.3 78% 51.8%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 146.3 78% 51.8%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Basis-inspired transitions */
+  .anim-sm {
+    transition-timing-function: var(--anim-ease-out);
+    transition-duration: var(--anim-duration-sm);
+  }
+  .anim-md {
+    transition-timing-function: var(--anim-ease-in-out);
+    transition-duration: var(--anim-duration-md);
+  }
+  .anim-lg {
+    transition-timing-function: var(--anim-ease-in-out);
+    transition-duration: var(--anim-duration-lg);
+  }
+
+  /* Prefer reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .anim-sm,
+    .anim-md,
+    .anim-lg {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
