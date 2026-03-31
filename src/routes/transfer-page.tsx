@@ -1,13 +1,23 @@
-import { useEffect, useMemo } from 'react'
-import { useForm } from 'react-hook-form'
+import { useEffect, useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
+import { ArrowRight, Eye, EyeOff } from 'lucide-react'
 
 import { useAccounts, useTransfer } from '@/features/banking/queries'
+import { CpfCnpjInput, MoneyInput } from '@/components/form/masked-inputs'
 import { formatBRL } from '@/lib/format'
+import { onlyDigits } from '@/lib/input-masks'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -16,8 +26,9 @@ const schema = z.object({
   toName: z.string().min(3, 'Nome do favorecido é obrigatório.'),
   toDocument: z
     .string()
-    .min(11, 'Documento inválido.')
-    .transform((v) => v.replace(/\D/g, '')),
+    .min(1, 'Informe CPF ou CNPJ.')
+    .transform((v) => onlyDigits(v))
+    .refine((d) => d.length === 11 || d.length === 14, 'CPF ou CNPJ inválido.'),
   toBank: z.string().min(2, 'Banco é obrigatório.'),
   amount: z.number().positive('Informe um valor maior que zero.'),
   description: z.string().max(140, 'Máximo de 140 caracteres.').optional(),
@@ -27,9 +38,11 @@ type FormValues = z.infer<typeof schema>
 
 export function TransferPage() {
   const navigate = useNavigate()
+
   const accountsQ = useAccounts()
   const accounts = accountsQ.data?.accounts ?? []
   const transfer = useTransfer()
+  const [balanceHidden, setBalanceHidden] = useState(false)
 
   const defaultFrom = useMemo(() => accounts[0]?.id ?? '', [accounts])
 
@@ -55,18 +68,54 @@ export function TransferPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Transferir</h2>
-        <p className="text-sm text-muted-foreground">Simulação de transferência com validação.</p>
+      <div
+        className="dashboard-enter flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+        style={{ ['--dashboard-delay' as string]: '0ms' }}
+      >
+        <div className="min-w-0">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Transferir
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Preencha os dados do favorecido e confirme o valor.
+          </p>
+        </div>
+
+        {selected && (
+          <div className="flex shrink-0 flex-col items-stretch gap-1 sm:items-end">
+            <div className="flex items-center justify-between gap-3 sm:justify-end">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Saldo · {selected.currency}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="anim-sm size-8 shrink-0"
+                onClick={() => setBalanceHidden((v) => !v)}
+                aria-label={balanceHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
+              >
+                <span className="balance-icon inline-flex">
+                  {balanceHidden ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+                </span>
+              </Button>
+            </div>
+            <p
+              key={balanceHidden ? 'hidden' : 'visible'}
+              className="balance-swap text-right text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl"
+            >
+              {balanceHidden ? '***' : formatBRL(selected.balance)}
+            </p>
+          </div>
+        )}
       </div>
 
-      <Card>
+      <Card
+        className="dashboard-enter relative overflow-hidden shadow-4"
+        style={{ ['--dashboard-delay' as string]: '80ms' }}
+      >
         <CardHeader>
           <CardTitle>Nova transferência</CardTitle>
-          <CardDescription>
-            Conta origem: <span className="font-medium text-foreground">{selected?.name ?? '—'}</span>
-            {selected ? ` • Saldo: ${formatBRL(selected.balance)}` : ''}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -77,22 +126,45 @@ export function TransferPage() {
               })
             })}
           >
-            <div className="grid gap-2 md:col-span-2">
+            <div
+              className="dashboard-row-enter grid gap-2 md:col-span-2"
+              style={{ ['--dashboard-row-delay' as string]: '0ms' }}
+            >
               <Label htmlFor="fromAccountId">Conta de origem</Label>
-              <select
-                id="fromAccountId"
-                className="h-10 rounded-md border bg-background px-3 text-sm"
-                {...form.register('fromAccountId')}
-              >
-                <option value="" disabled>
-                  Selecione...
-                </option>
-                {accounts.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} ({formatBRL(a.balance)})
-                  </option>
-                ))}
-              </select>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="anim-sm h-11 w-full justify-between border-border/50 bg-secondary/50 px-3 font-normal hover:bg-secondary/60"
+                    aria-label="Selecionar conta de origem"
+                  >
+                    <span className="min-w-0 truncate text-left text-sm">
+                      {selected
+                        ? `${selected.name} (${formatBRL(selected.balance)})`
+                        : 'Selecione...'}
+                    </span>
+                    <span className="ml-3 text-xs text-muted-foreground">▼</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width]">
+                  <DropdownMenuRadioGroup
+                    value={form.watch('fromAccountId')}
+                    onValueChange={(v) => form.setValue('fromAccountId', v, { shouldValidate: true })}
+                  >
+                    {accounts.map((a) => (
+                      <DropdownMenuRadioItem key={a.id} value={a.id}>
+                        <div className="flex w-full items-center justify-between gap-3">
+                          <span className="truncate">{a.name}</span>
+                          <span className="tabular-nums text-xs text-muted-foreground">
+                            {formatBRL(a.balance)}
+                          </span>
+                        </div>
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
               {form.formState.errors.fromAccountId && (
                 <p className="text-sm text-destructive">
                   {form.formState.errors.fromAccountId.message}
@@ -100,17 +172,43 @@ export function TransferPage() {
               )}
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="toName">Favorecido</Label>
-              <Input id="toName" placeholder="Nome completo" {...form.register('toName')} />
+            <div
+              className="dashboard-row-enter grid gap-2"
+              style={{ ['--dashboard-row-delay' as string]: '45ms' }}
+            >
+              <Label htmlFor="toName" className="text-sm text-muted-foreground">
+                Favorecido
+              </Label>
+              <Input
+                id="toName"
+                placeholder="Nome completo"
+                className="h-11 border-border/50 bg-secondary/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20"
+                {...form.register('toName')}
+              />
               {form.formState.errors.toName && (
                 <p className="text-sm text-destructive">{form.formState.errors.toName.message}</p>
               )}
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="toDocument">CPF/CNPJ</Label>
-              <Input id="toDocument" placeholder="Somente números" {...form.register('toDocument')} />
+            <div
+              className="dashboard-row-enter grid gap-2"
+              style={{ ['--dashboard-row-delay' as string]: '90ms' }}
+            >
+              <Label htmlFor="toDocument" className="text-sm text-muted-foreground">
+                CPF/CNPJ
+              </Label>
+              <Controller
+                name="toDocument"
+                control={form.control}
+                render={({ field }) => (
+                  <CpfCnpjInput
+                    id="toDocument"
+                    placeholder="000.000.000-00"
+                    className="h-11 border-border/50 bg-secondary/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20"
+                    {...field}
+                  />
+                )}
+              />
               {form.formState.errors.toDocument && (
                 <p className="text-sm text-destructive">
                   {form.formState.errors.toDocument.message}
@@ -118,33 +216,63 @@ export function TransferPage() {
               )}
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="toBank">Banco</Label>
-              <Input id="toBank" placeholder="Ex: Onda Bank" {...form.register('toBank')} />
+            <div
+              className="dashboard-row-enter grid gap-2"
+              style={{ ['--dashboard-row-delay' as string]: '135ms' }}
+            >
+              <Label htmlFor="toBank" className="text-sm text-muted-foreground">
+                Banco
+              </Label>
+              <Input
+                id="toBank"
+                placeholder="Ex: Onda Bank"
+                className="h-11 border-border/50 bg-secondary/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20"
+                {...form.register('toBank')}
+              />
               {form.formState.errors.toBank && (
                 <p className="text-sm text-destructive">{form.formState.errors.toBank.message}</p>
               )}
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="amount">Valor</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0"
-                {...form.register('amount', { valueAsNumber: true })}
+            <div
+              className="dashboard-row-enter grid gap-2"
+              style={{ ['--dashboard-row-delay' as string]: '180ms' }}
+            >
+              <Label htmlFor="amount" className="text-sm text-muted-foreground">
+                Valor
+              </Label>
+              <Controller
+                name="amount"
+                control={form.control}
+                render={({ field }) => (
+                  <MoneyInput
+                    id="amount"
+                    placeholder="0,00"
+                    className="border-border/50 bg-secondary/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20"
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                  />
+                )}
               />
               {form.formState.errors.amount && (
                 <p className="text-sm text-destructive">{form.formState.errors.amount.message}</p>
               )}
             </div>
 
-            <div className="grid gap-2 md:col-span-2">
-              <Label htmlFor="description">Descrição (opcional)</Label>
+            <div
+              className="dashboard-row-enter grid gap-2 md:col-span-2"
+              style={{ ['--dashboard-row-delay' as string]: '225ms' }}
+            >
+              <Label htmlFor="description" className="text-sm text-muted-foreground">
+                Descrição (opcional)
+              </Label>
               <Input
                 id="description"
                 placeholder="Ex: Aluguel, ajuda, etc."
+                className="h-11 border-border/50 bg-secondary/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20"
                 {...form.register('description')}
               />
               {form.formState.errors.description && (
@@ -164,12 +292,21 @@ export function TransferPage() {
               </div>
             )}
 
-            <div className="md:col-span-2 flex items-center justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => navigate('/app')}>
+            <div
+              className="dashboard-row-enter md:col-span-2 flex flex-col-reverse items-stretch justify-end gap-2 pt-2 sm:flex-row sm:items-center"
+              style={{ ['--dashboard-row-delay' as string]: '270ms' }}
+            >
+              <Button
+                type="button"
+                variant="outline"
+                className="anim-sm"
+                onClick={() => navigate('/app')}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={transfer.isPending}>
+              <Button type="submit" className="group anim-sm gap-2" disabled={transfer.isPending}>
                 {transfer.isPending ? 'Enviando...' : 'Confirmar transferência'}
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </div>
           </form>
@@ -178,4 +315,3 @@ export function TransferPage() {
     </div>
   )
 }
-

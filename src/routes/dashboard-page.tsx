@@ -72,12 +72,18 @@ export function DashboardPage() {
                 onClick={() => setBalanceHidden((v) => !v)}
                 aria-label={balanceHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
               >
-                <span className="balance-icon inline-flex">
+                <span
+                  key={balanceHidden ? 'hidden' : 'visible'}
+                  className="balance-icon inline-flex"
+                >
                   {balanceHidden ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
                 </span>
               </Button>
             </div>
-            <p className="balance-swap text-right text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl">
+            <p
+              key={balanceHidden ? 'hidden' : 'visible'}
+              className="balance-swap text-right text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl"
+            >
               {balanceHidden ? '***' : formatBRL(selectedAccount.balance)}
             </p>
           </div>
