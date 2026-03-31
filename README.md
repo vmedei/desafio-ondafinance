@@ -79,6 +79,16 @@ npm run test:run
 - **Configurações**: tema (dropdown alinhado ao restante do app) e logout.
 - **Tema**: claro, escuro ou seguindo o sistema — aplicado no `document` e persistido.
 
+## Melhorias futuras
+
+Ideias naturais de evolução após o escopo do desafio, sem desmerecer o que já está entregue:
+
+- **Internacionalização (i18n)**: extrair textos para catálogos (ex.: `react-i18next` ou `lingui`), locale por usuário ou navegador, formatação de datas e moeda por região.
+- **Testes E2E com Playwright**: cobrir fluxos críticos (login mock, transferência, filtros de extrato, navegação mobile com *sheet*) em CI, compondo o que hoje é coberto só por testes unitários/integração leves.
+- **Backend e persistência real**: substituir o **adapter mock** por uma API autenticada (REST ou GraphQL) e banco relacional/NoSQL; manter a camada em `src/api` como contrato estável entre front e servidor.
+- **Observabilidade e erros**: integração com serviço de *reporting* de erros no cliente (ex.: Sentry) e correlação com versão de *build* / ambiente.
+- **Acessibilidade em auditoria**: revisão sistemática com axe/Playwright a11y, foco em formulários financeiros e leitores de tela.
+
 ## Segurança
 
 > Escopo **conceitual**: as medidas abaixo descrevem como um aplicativo deste tipo seria endurecido em produção. **Não** fazem parte da implementação deste repositório (front mock).
