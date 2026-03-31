@@ -1,19 +1,40 @@
 # Desafio Front-End — Onda Finance
 
-Aplicação web (mock) simulando um app bancário simples, com foco em organização, UX e boas práticas.
+Aplicação web (mock) que simula um **internet banking** enxuto: login, dashboard, transferências, extrato com filtros e detalhe de movimentação, tema e configurações. O foco está em **organização de código**, **UX consistente**, **tipagem** e padrões de mercado (camada de API, cache, formulários).
+
+## Visão geral (estado atual)
+
+| Área | O que foi feito |
+|------|------------------|
+| **Rotas** | `createBrowserRouter`: `/login`, área autenticada em `/app` com *layout* (`AppShell` + `<Outlet />`), rotas filhas para dashboard, transferência, transações (lista + detalhe por `:id`), configurações e 404. |
+| **Autenticação (mock)** | Sessão em **Zustand** (token + usuário); rotas protegidas via componente dedicado; fluxo de login/logout integrado ao Axios (header `Authorization`). |
+| **Dados** | **TanStack Query** para contas, transações (com **filtro por conta** e **intervalo de datas** via query string), detalhe e mutação de transferência; chaves de query alinhadas aos filtros para cache correto. |
+| **API** | Funções em `src/api/banking.ts` sobre **Axios**; em desenvolvimento um **adapter mock** simula latência e validações básicas, mantendo o front desacoplado (fácil trocar por API real). |
+| **Formulários** | **React Hook Form + Zod**: transferência com máscaras (CPF/CNPJ e valor em R$), validação de documento e valor; padrão reutilizável de inputs mascarados. |
+| **UI / UX** | **Tailwind** + componentes estilo shadcn (**Radix**): diálogos, dropdowns, *sheet* (menu lateral no mobile), calendário para período; **tema** claro / escuro / sistema com persistência; **animações** de entrada e `prefers-reduced-motion` onde aplicável. |
+| **Design** | Tokens e convenções documentados em `DESIGN_SYSTEM.md` e `src/index.css` (cor primária da marca, sombras, motion). |
+| **Componentes** | Peças reutilizáveis (ex.: exibição de saldo com ocultar/mostrar **persistido** entre páginas, filtros de transações, *layout* com sidebar desktop e *drawer* no mobile). |
+| **Testes** | **Vitest** + Testing Library em trechos críticos (ex.: máscaras, regras do mock). |
+
+### Destaques para quem avalia o código
+
+- **Separação de responsabilidades**: rotas leves, hooks de dados em `features/`, tipos compartilhados em `types/`, cliente HTTP isolado.
+- **Experiência de uso**: navegação lateral responsiva, filtros de extrato sem recarregar a página inteira (cache do React Query), feedback de carregamento e erro nas listas.
+- **Manutenibilidade**: TypeScript estrito, validação declarativa com Zod, componentes acessíveis (Radix + rótulos/aria onde cabe).
+- **Documentação**: README com visão de produto e seção de **segurança** (conceitual, pensada para contexto financeiro).
 
 ## Stack
 
-- React + TypeScript
+- React 19 + TypeScript
 - Vite
-- Tailwind + CVA
-- shadcn/ui + Radix
-- React Router
-- React Query
-- Zustand
+- Tailwind CSS + CVA
+- shadcn/ui + Radix UI
+- React Router 7 (`createBrowserRouter`)
+- TanStack Query (React Query)
+- Zustand (com `persist` para tema e preferências de UI)
 - React Hook Form + Zod
-- Axios (com adapter mock local)
-- Vitest
+- Axios (adapter mock local)
+- Vitest + Testing Library
 
 ## Rodar localmente
 
@@ -34,84 +55,39 @@ ou
 npm run test:run
 ```
 
-## O que tem no app
+## Funcionalidades principais
 
-- **Login** (mock) com persistência de sessão via Zustand
-- **Dashboard** com contas e transações recentes
-- **Transferência** com validação (RHF + Zod) e atualização via React Query
-- **Lista/Detalhe de transações**
-- **Tema** (claro/escuro/sistema)
+- **Login** (mock): sessão persistida; redirecionamento para a área logada.
+- **Dashboard**: abas por conta, saldo (com opção de ocultar **global** e persistida), transações recentes e atalho para transferir.
+- **Transferência**: seleção de conta, favorecido, banco, valor com máscara BRL e validação de CPF/CNPJ (11 ou 14 dígitos).
+- **Transações**: filtro por conta, **intervalo de datas** (calendário), lista clicável para o detalhe.
+- **Detalhe da transação**: valor em destaque, tipo (crédito/débito/transferência), conta vinculada.
+- **Configurações**: tema (dropdown alinhado ao restante do app) e logout.
+- **Tema**: claro, escuro ou seguindo o sistema — aplicado no `document` e persistido.
 
-# React + TypeScript + Vite
+## Segurança
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Escopo **conceitual**: as medidas abaixo descrevem como um aplicativo deste tipo seria endurecido em produção. **Não** fazem parte da implementação deste repositório (front mock).
 
-Currently, two official plugins are available:
+### Engenharia reversa
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+O front-end em JavaScript é sempre inspecionável no navegador; a defesa combina **redução de superfície** e **ausência de segredos no cliente**.
 
-## React Compiler
+- **Build de produção**: minificação, tree-shaking e **sem publicar source maps** para o público (ou restringir maps a ambientes internos), dificultando leitura casual do código.
+- **Nenhum segredo no bundle**: chaves de API, credenciais ou regras proprietárias não devem ficar em variáveis acessíveis no cliente; regras críticas permanecem no **backend**, com o app consumindo apenas APIs autenticadas.
+- **Integridade e distribuição**: na Web, **Subresource Integrity (SRI)** em assets servidos por CDN quando aplicável; em apps nativos ou híbridos, assinatura de binários e canal seguro de atualização.
+- **Headers e políticas**: **Content-Security-Policy (CSP)** restritiva, proteção contra **clickjacking** (`frame-ancestors` / `X-Frame-Options`), `Referrer-Policy` adequada, reduzindo abuso de injeção e framing.
+- **Autoridade no servidor**: validação de sessão/token **no backend**, **rate limiting**, detecção de abuso — o cliente não é fonte da verdade para permissões ou regras de negócio sensíveis.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Vazamento de dados
 
-## Expanding the ESLint configuration
+Proteção combina **trânsito**, **armazenamento**, **gestão de credenciais** e **governança** de dados.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Em trânsito**: **HTTPS/TLS** obrigatório; **HSTS** no servidor; em clientes móveis, **certificate pinning** quando o modelo de ameaça justificar.
+- **Em repouso e backups**: criptografia de bases e backups, controle de acesso (RBAC), segregação de ambientes e trilhas de auditoria para acessos administrativos.
+- **Sessão e tokens**: preferência por **cookies HttpOnly + Secure + SameSite** ou tokens de curta duração com **refresh** controlado; evitar armazenar segredos de longo prazo em `localStorage` para cenários de alto risco sem análise explícita de risco.
+- **Minimização e LGPD**: coletar e retê apenas o necessário; não registrar **dados pessoais ou financeiros** em texto claro em logs de produção; mascarar identificadores em APM/observabilidade.
+- **Segredos e CI/CD**: credenciais em **vault** ou secrets do pipeline; **nunca** versionar `.env` com segredos reais.
+- **Cadeia de suprimentos**: auditoria de dependências (SCA), atualizações de segurança e revisão de permissões de pacotes.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Em resumo: o front entrega experiência, mas **segurança sustentável** exige backend confiável, transporte cifrado, dados mínimos e operação disciplinada — não apenas dificultar a leitura do código no DevTools.
