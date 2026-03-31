@@ -81,7 +81,7 @@ describe('integração: extrato', () => {
   it('carrega movimentações do mock na lista', async () => {
     renderIntegrationApp('/app/transacoes')
 
-    expect(await screen.findByText(/salário/i, { timeout: 10_000 })).toBeInTheDocument()
+    expect(await screen.findByText(/salário/i, {}, { timeout: 10_000 })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /^transações$/i })).toBeInTheDocument()
   })
 })

@@ -15,7 +15,7 @@ export function useAccounts() {
   const token = useAuthStore((s) => s.token)
   return useQuery({
     queryKey: ['accounts'],
-    queryFn: async () => listAccounts(token!),
+    queryFn: listAccounts,
     enabled: Boolean(token),
   })
 }
@@ -27,7 +27,7 @@ export function useTransactions(accountId?: string, dateRange?: TransactionDateR
       'transactions',
       { accountId: accountId ?? null, from: dateRange?.from ?? null, to: dateRange?.to ?? null },
     ],
-    queryFn: async () => listTransactions(token!, accountId, dateRange),
+    queryFn: () => listTransactions(accountId, dateRange),
     enabled: Boolean(token),
   })
 }
@@ -36,16 +36,15 @@ export function useTransaction(id: string) {
   const token = useAuthStore((s) => s.token)
   return useQuery({
     queryKey: ['transaction', id],
-    queryFn: async () => getTransaction(token!, id),
+    queryFn: () => getTransaction(id),
     enabled: Boolean(token) && Boolean(id),
   })
 }
 
 export function useTransfer() {
-  const token = useAuthStore((s) => s.token)
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (input: TransferInput) => createTransfer(token!, input),
+    mutationFn: (input: TransferInput) => createTransfer(input),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ['accounts'] })
       await qc.invalidateQueries({ queryKey: ['transactions'] })
@@ -59,9 +58,8 @@ export function useLogout() {
   return useMutation({
     mutationFn: async () => {
       if (!token) return { ok: true as const }
-      return logout(token)
+      return logout()
     },
     onSettled: () => clearSession(),
   })
 }
-
