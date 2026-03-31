@@ -1,5 +1,6 @@
-import axios from 'axios'
+import axios, { type AxiosError } from 'axios'
 
+import { getLoginPath } from '@/lib/login-path'
 import { useAuthStore } from '@/stores/auth-store'
 
 export const api = axios.create({
@@ -10,9 +11,15 @@ export const api = axios.create({
   },
 })
 
+function isAuthLoginRequest(url: string) {
+  return url === '/auth/login' || url.startsWith('/auth/login?')
+}
+
+let redirectingFor401 = false
+
 api.interceptors.request.use((config) => {
   const path = config.url ?? ''
-  if (path === '/auth/login' || path.startsWith('/auth/login?')) {
+  if (isAuthLoginRequest(path)) {
     return config
   }
 
@@ -22,3 +29,17 @@ api.interceptors.request.use((config) => {
   }
   return config
 })
+
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    const status = error.response?.status
+    const url = error.config?.url ?? ''
+    if (status === 401 && !isAuthLoginRequest(url) && !redirectingFor401) {
+      redirectingFor401 = true
+      useAuthStore.getState().clearSession()
+      window.location.assign(getLoginPath())
+    }
+    return Promise.reject(error)
+  },
+)
