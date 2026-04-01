@@ -15,6 +15,8 @@ export const mockDb = (() => {
     { id: 'u_1', name: 'Vinicius Medeiros', email: 'vinicius@onda.finance' },
   ]
 
+  const DEMO_PASSWORD = '1234'
+
   const accounts: Account[] = [
     { id: 'acc_1', name: 'Conta Corrente', currency: 'BRL', balance: 12500.35 },
     { id: 'acc_2', name: 'Reserva', currency: 'BRL', balance: 3200.0 },
@@ -134,8 +136,10 @@ export const mockDb = (() => {
   let session: Session | null = null
 
   function login(email: string, password: string) {
-    void password
-    const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? users[0]
+    const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? null
+    if (!user || password !== DEMO_PASSWORD) {
+      throw new Error('Credenciais inválidas.')
+    }
     const token = `mock_${user.id}_${Date.now()}`
     session = { token, userId: user.id }
     return { token, user }

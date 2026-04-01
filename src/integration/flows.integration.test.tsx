@@ -22,6 +22,7 @@ describe('integração: login', () => {
     const user = userEvent.setup({ delay: null })
     renderIntegrationApp('/login')
 
+    await user.click(screen.getByRole('button', { name: /usar credenciais de demonstração/i }))
     await user.click(screen.getByRole('button', { name: /entrar/i }))
 
     expect(

@@ -64,8 +64,17 @@ export function createMockAdapter(): AxiosAdapter {
         const email = body.email?.trim() ?? ''
         const password = body.password ?? ''
         if (!email) return rejectAxios(config, 'E-mail é obrigatório.', 422)
-        const { token, user } = mockDb.login(email, password)
-        return jsonResponse(config, { token, user })
+        if (!password) return rejectAxios(config, 'Senha é obrigatória.', 422)
+        try {
+          const { token, user } = mockDb.login(email, password)
+          return jsonResponse(config, { token, user })
+        } catch (e) {
+          const message = e instanceof Error ? e.message : 'Credenciais inválidas.'
+          if (/credenciais inválidas/i.test(message)) {
+            return rejectAxios(config, 'Credenciais inválidas.', 401)
+          }
+          return rejectAxios(config, message, 400)
+        }
       }
 
       if (!isAuthed) {

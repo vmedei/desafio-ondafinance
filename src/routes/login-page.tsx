@@ -12,6 +12,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { AnimatedBackground } from '@/features/auth/components/animated-background'
+import { toast } from '@/hooks/use-toast'
+import { getApiErrorMessage } from '@/lib/api-error-message'
+import { DEMO_CREDENTIALS } from '@/lib/demo-credentials'
 import { logoUrl } from '@/lib/public-assets'
 import { useAuthStore } from '@/stores/auth-store'
 
@@ -36,8 +39,8 @@ export function LoginPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      email: 'vinicius@onda.finance',
-      password: '1234',
+      email: '',
+      password: '',
     },
     mode: 'onSubmit',
   })
@@ -47,6 +50,19 @@ export function LoginPage() {
     onSuccess: (data) => {
       setSession({ token: data.token, user: data.user })
       navigate(from, { replace: true })
+    },
+    onError: (error) => {
+      const message = getApiErrorMessage(
+        error,
+        'Não foi possível entrar. Verifique suas credenciais.',
+      )
+      form.setError('root', { message })
+      toast({
+        variant: 'destructive',
+        title: 'Falha no login',
+        description: message,
+        duration: 7000,
+      })
     },
   })
 
@@ -133,9 +149,10 @@ export function LoginPage() {
                 )}
               </div>
 
-              {mutation.isError && (
+              {(mutation.isError || form.formState.errors.root) && (
                 <p className="text-sm text-destructive">
-                  {mutation.error instanceof Error ? mutation.error.message : 'Falha ao entrar.'}
+                  {form.formState.errors.root?.message ??
+                    (mutation.error instanceof Error ? mutation.error.message : 'Falha ao entrar.')}
                 </p>
               )}
 
@@ -153,6 +170,19 @@ export function LoginPage() {
                 <span className="text-xs text-muted-foreground">ou</span>
                 <div className="h-px flex-1 bg-border/50" />
               </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 w-full border-border/50 bg-secondary/30 text-foreground hover:bg-secondary/60"
+                onClick={() => {
+                  form.clearErrors()
+                  form.setValue('email', DEMO_CREDENTIALS.email, { shouldValidate: true })
+                  form.setValue('password', DEMO_CREDENTIALS.password, { shouldValidate: true })
+                }}
+              >
+                Usar credenciais de demonstração
+              </Button>
 
               <Button
                 type="button"

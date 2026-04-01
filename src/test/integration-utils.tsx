@@ -11,6 +11,7 @@ import { LoginPage } from '@/routes/login-page'
 import { ProtectedRoute } from '@/routes/protected'
 import { TransactionsPage } from '@/routes/transactions-page'
 import { TransferPage } from '@/routes/transfer-page'
+import { DEMO_CREDENTIALS } from '@/lib/demo-credentials'
 import { useAuthStore } from '@/stores/auth-store'
 
 export function createTestQueryClient() {
@@ -38,7 +39,7 @@ export function ensureMockApi() {
 }
 
 export async function seedAuthenticatedSession() {
-  const data = await login({ email: 'vinicius@onda.finance', password: '1234' })
+  const data = await login({ email: DEMO_CREDENTIALS.email, password: DEMO_CREDENTIALS.password })
   useAuthStore.getState().setSession({ token: data.token, user: data.user })
 }
 
